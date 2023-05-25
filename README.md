@@ -24,6 +24,7 @@ KoBERT 기반 탐지 모델, Kubernetes와 SQS를 활용한 아키텍처로 구�
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/caba59e1-75ab-47b1-adff-e99f14092d41) <br>
 
 보이스피싱 데이터를 텍스트로 변환하기 위해 여러 종류의 STT API를 비교 분석한 결과, 가장 적합한 STT API를 선정하였습니다. <br> 
+
 아래는 STT API들의 비교 결과를 나타낸 표입니다. <br>
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/99aa342e-8fde-4957-8781-74526f2ac66c)
