@@ -32,7 +32,7 @@ KoBERT 기반 탐지 모델, Kubernetes와 SQS를 활용한 아키텍처로 구�
 위 표를 통해 VITO STT 서비스가 준수한 정확도를 유지하면서도 실시간 스트리밍이 가능함을 확인할 수 있었습니다. <br>
 또한, VITO 측과 협의를 통해 해당 서비스를 20% 저렴한 가격으로 이용할 수 있게 되어, 최종적으로 VITO STT를 선택하게 되었습니다. <br>
 
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/573db6a6-ec65-464a-a196-5de3d8bf506b)
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
 
 모델 선정을 위해 다양한 모델을 테스트하였으며, 그 결과 BERT 기반의 KoBERT 모델이 가장 우수한 성능을 보였습니다. 또한, 보이스피싱 데이터가 부족한 문제를 Augmentation 기법을 활용하여 해결하였습니다. 
 이를 바탕으로, 각 단어를 토큰화한 후 KoBERT와 Binary Classification 모델을 연결하여 보이스피싱 여부를 판별할 수 있는 모델을 설계하였습니다.
