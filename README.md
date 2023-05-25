@@ -43,6 +43,8 @@ KoBERT 기반 탐지 모델, Kubernetes와 SQS를 활용한 아키텍처로 구�
 
 이 결과는 보이스피싱 여부를 판별하는데 중요한 재현율이 높은 신뢰도 높은 모델이라는 것을 나타냅니다.
 
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/ef0394b9-4728-46cd-bbd4-0fcff9052583)
+
 
 # 탐지 화면
 
