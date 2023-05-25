@@ -12,7 +12,7 @@
 매년 피해와 규모가 증가하고 있는 보이스피싱을 사전에 예방하여 공공의 이익을 실천하고자 하였습니다. <br><br>
  
 KoBERT 기반 탐지 모델, Kubernetes와 SQS를 활용한 아키텍처로 구축한 데이터 파이프라인, Nest.js를 사용한 API 서버가 있습니다. <br>
-[링크](https://github.com/SWMTeamCuriosity)
+[개발 링크](https://github.com/SWMTeamCuriosity)
 
 
 # 개발 내용 - 모델
