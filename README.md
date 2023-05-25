@@ -17,10 +17,10 @@ KoBERT 기반 탐지 모델, Kubernetes와 SQS를 활용한 아키텍처로 구�
 
 # 개발 내용 - 모델
 
-금융감독원의 ‘그놈 목소리’와 ‘바로 이 목소리’ 서비스에서 제공하는 546개의 보이스피싱 데이터를 크롤링하여 수집하였습니다. <br><br>
+금융감독원의 [‘그놈 목소리’](https://www.fss.or.kr/fss/bbs/B0000206/list.do?menuNo=200690)와 [‘바로 이 목소리’](https://www.fss.or.kr/fss/bbs/B0000203/list.do?menuNo=200686) 서비스에서 제공하는 546개의 보이스피싱 데이터를 크롤링하여 수집하였습니다. <br><br>
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/9d4da9b7-8ed4-4150-beef-aaad69b1fbff) <br>
 
-AI Hub에서 일반 대화 데이터를 수집하였습니다. 금융 상담을 비롯한 일상 대화 내용 78,000건을 수집하였습니다. <br><br>
+[AI Hub](https://aihub.or.kr/aihubdata/data/view.do?currMenu=116&topMenu=100&aihubDataSe=ty&dataSetSn=123)에서 일반 대화 데이터를 수집하였습니다. 금융 상담을 비롯한 일상 대화 내용 78,000건을 수집하였습니다. <br><br>
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/caba59e1-75ab-47b1-adff-e99f14092d41) <br>
 
 보이스피싱 데이터를 텍스트로 변환하기 위해 여러 종류의 STT API를 비교 분석한 결과, 가장 적합한 STT API를 선정하였습니다. <br> 
