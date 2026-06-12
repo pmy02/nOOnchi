@@ -40,8 +40,6 @@
 **VITO STT**는 준수한 정확도를 유지하면서 실시간 스트리밍을 지원한다는 **기술적 근거**로 선정했습니다. <br>
 (협의를 통한 20% 할인은 서비스 운영상의 비용 요인도 선정에 영향을 미쳤습니다.)
 
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
-
 ---
 
 ## 데이터
@@ -77,6 +75,7 @@
 모델 선정 단계에서 [BiLSTM/RNN 분류기](https://github.com/SWMTeamCuriosity/BiLSTM_RNN_Text_Classification)와 [사전학습 fastText](https://github.com/SWMTeamCuriosity/pretrained_fastText)도 프로토타이핑했으며, 팀 검증 데이터에서는 KoBERT가 가장 우수했습니다.
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/df63ff97-ad6d-47ea-9001-c321c034a988)
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
 
 ---
 
@@ -88,11 +87,11 @@
 |:---:|:---:|:---:|:---:|
 | 94.8% | 81.3% | 96.2% | 88.1% |
 
-재현율을 우선시했습니다. 피싱 경고 시스템에서는 놓친 피싱 통화(거짓 음성)의 비용이 오경보보다 훨씬 크기 때문입니다.
+피싱 경고 시스템에서는 놓친 피싱 통화(거짓 음성)의 비용이 오탐지보다 훨씬 크기 때문에 재현율을 우선시했습니다.
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/ef0394b9-4728-46cd-bbd4-0fcff9052583)
 
-### ⚠️ 한계와 회고 (수치를 인용하기 전에 반드시 읽어주세요)
+### 한계 및 피드백
 
 프로그램 종료 후 코드와 데이터를 재감사하면서 네 가지 방법론적 문제를 확인했습니다. 후속 프로젝트의 설계 근거가 되었기에 솔직하게 기록합니다.
 
@@ -101,7 +100,7 @@
 3. **평가 프로토콜이 문서화되어 있지 않고, 보고 지표가 문서화된 분할과 내적으로 일치하지 않습니다.** Accuracy 94.8 / Precision 81.3 / Recall 96.2 를 동시에 만족하려면 테스트셋의 음성:양성 비율이 약 **4 : 1**이어야 하지만, 문서화된 20,000 / 18,000 코퍼스의 80/20 분할은 약 1.1 : 1 입니다. 공개 수치가 산출된 평가셋은 현재 리포지토리에서 재구성할 수 없으므로, 해당 수치는 재현 가능한 결과가 아닌 참고치로 취급해야 합니다.
 4. **학습-서빙 불일치.** 모델은 완결된 발화로 학습되었지만, 서빙 시에는 *부분적인 스트리밍* 전사를 채점하며, 발화 점수를 통화 수준 경고로 집계하는 규칙은 정식화·평가되지 않았습니다.
 
-**올바른 재설계** — 통화 단위 분할, 발화 라벨 상속 대신 통화 수준 라벨의 약지도 학습, 명시적인 스트리밍/조기 탐지 평가, 정상 콜센터 대화에 대한 하드 네거티브 테스트 — 가 바로 **[EarShield](https://github.com/pmy02/earshield)** <!-- TODO: URL 갱신 --> 의 설계입니다.
+**피드백** — 통화 단위 분할, 발화 라벨 상속 대신 통화 수준 라벨의 약지도 학습, 명시적인 스트리밍/조기 탐지 평가, 정상 콜센터 대화에 대한 하드 네거티브 테스트 — **[nOOnchi_v2](https://github.com/pmy02/nOOnchi_v2)** 
 
 ---
 
@@ -123,23 +122,8 @@
 | [streaming_stt_test](https://github.com/SWMTeamCuriosity/streaming_stt_test) / [mic_input_test](https://github.com/SWMTeamCuriosity/mic_input_test) / [Kospeech_test](https://github.com/SWMTeamCuriosity/Kospeech_test) | STT / 오디오 입력 실험 |
 | [noonchi_api](https://github.com/SWMTeamCuriosity/noonchi_api) | Nest.js API 서버 |
 
-## 재현성
-
-학습 노트북(`KoBERT_test/KoBERT_Test.ipynb`, Colab 기반, SKTBrain KoBERT + gluonnlp/mxnet 스택)과 데이터셋 CSV(`transcript_data/csv_datas/result.csv`, 38,000행)는 기록 보존을 위해 그대로 유지됩니다. 이를 재실행하면 위에 기술한 *결함 있는* 프로토콜이 재현됩니다 — 의도적으로 수정하지 않았으며, 교정된 파이프라인은 후속 리포지토리에 있습니다.
-
-## 인용
-
-```bibtex
-@misc{park2022noonchi,
-  author       = {Park, Minyoung},
-  title        = {nOOnchi: Real-Time Voice Phishing Detection Service},
-  year         = {2022},
-  howpublished = {\url{https://github.com/pmy02/nOOnchi}},
-  note         = {SW Maestro 13th program project}
-}
-```
 
 ## 라이선스 및 연락처
 
-MIT License — [LICENSE](LICENSE) 참고.
-관리자: **박민영** ([@pmy02](https://github.com/pmy02)). <!-- TODO: 공개할 이메일이 있으면 추가 -->
+MIT License — [LICENSE](LICENSE) <br>
+**박민영** ([@pmy02](https://github.com/pmy02)). minyo0119@naver.com
