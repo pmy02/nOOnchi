@@ -8,9 +8,9 @@
 ![Backend](https://img.shields.io/badge/Backend-Nest.js%20%C2%B7%20Kubernetes%20%C2%B7%20AWS%20SQS-green)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-> **Status: archived (Apr 8 – Dec 15, 2022).** This README was revised in 2026 to document the system *accurately*, including methodological limitations identified in retrospect. The limitations are kept here deliberately — they motivated a methodologically rigorous successor project, **[EarShield](https://github.com/pmy02/earshield)** <!-- TODO: update URL after pushing the successor repo -->, which redesigns the data splits, labels, and evaluation from the ground up.
+> **Status: archived (Apr 8 – Dec 15, 2022).** This README was revised in 2026 to document the system *accurately*, including methodological limitations identified in retrospect. The limitations are kept here deliberately — they motivated a methodologically rigorous successor project, **[nOOnchi_v2](https://github.com/pmy02/nOOnchi_v2)**, which redesigns the data splits, labels, and evaluation from the ground up.
 
-**nOOnchi** ("nunchi" — the Korean word for reading a situation) is a voice phishing detection solution built during the **13th SW Maestro program**: an API service and mobile application that transcribes an ongoing phone call, classifies the conversation with a KoBERT-based model, and alerts the user when the call looks like voice phishing. The motivation was the steady year-over-year growth of voice phishing damage in Korea and the fact that most victims realize what happened only after the money has moved.
+**nOOnchi** is a voice phishing detection solution built during the **13th SW Maestro program**: an API service and mobile application that transcribes an ongoing phone call, classifies the conversation with a KoBERT-based model, and alerts the user when the call looks like voice phishing. The motivation was the steady year-over-year growth of voice phishing damage in Korea and the fact that most victims realize what happened only after the money has moved.
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/d35d8313-555f-4e9e-9efc-f82e809e5a45)
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/7f5917b1-d259-4feb-a4b6-ee4bf9e618b7)
@@ -39,8 +39,6 @@ Several Korean STT APIs were benchmarked on phishing-call audio for transcriptio
 
 **VITO STT** was selected on technical grounds — competitive accuracy while supporting real-time streaming, which the detection scenario requires. (A negotiated 20% discount was an additional cost consideration for the service, not a technical criterion.)
 
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
-
 ---
 
 ## Data
@@ -54,8 +52,7 @@ Several Korean STT APIs were benchmarked on phishing-call audio for transcriptio
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/caba59e1-75ab-47b1-adff-e99f14092d41)
 
-**How the 38,000-utterance training set was actually built** (see [`text_refactoring/sentence_to_csv`](https://github.com/SWMTeamCuriosity/text_refactoring) and [`transcript_data`](https://github.com/SWMTeamCuriosity/transcript_data)): the 546 phishing calls were segmented into STT utterances; utterances longer than 2 characters were kept and the first 18,000 were labeled `True`. Normal utterances were extracted from the AI Hub dialogues the same way and the first 20,000 were labeled `False`. The original write-up described this step as "augmentation"; **utterance-level segmentation of call-level data** is the precise description — every utterance inherits the label of its source call.
-
+**How the 38,000-utterance training set was actually built** (see [`text_refactoring/sentence_to_csv`](https://github.com/SWMTeamCuriosity/text_refactoring) and [`transcript_data`](https://github.com/SWMTeamCuriosity/transcript_data)): the 546 phishing calls were segmented into STT utterances; utterances longer than 2 characters were kept and the first 18,000 were labeled `True`. Normal utterances were extracted from the AI Hub dialogues the same way and the first 20,000 were labeled `False`.
 > The raw AI Hub corpora are license-restricted and cannot be redistributed; the repositories contain only derived files used during the program.
 
 ---
@@ -77,10 +74,11 @@ A standard fine-tuning setup on top of **[KoBERT](https://github.com/SKTBrain/Ko
 Alternative models were prototyped during model selection — [BiLSTM/RNN classifiers](https://github.com/SWMTeamCuriosity/BiLSTM_RNN_Text_Classification) and [pretrained fastText](https://github.com/SWMTeamCuriosity/pretrained_fastText) — and KoBERT performed best among them on the team's validation data.
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/df63ff97-ad6d-47ea-9001-c321c034a988)
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
 
 ---
 
-## Reported Results
+## Results
 
 Metrics computed from a confusion matrix on held-out utterances:
 
@@ -101,7 +99,7 @@ Re-auditing the code and data after the program ended surfaced four methodologic
 3. **The evaluation protocol is under-documented and the reported metrics are not internally consistent with the documented split.** Accuracy 94.8 / precision 81.3 / recall 96.2 jointly imply a test set with roughly a **4 : 1 negative-to-positive ratio**, while the documented 80/20 split of the 20,000 / 18,000 corpus yields ≈ 1.1 : 1. The exact evaluation set behind the published numbers can no longer be reconstructed from the repositories, so the figures should be treated as indicative, not reproducible.
 4. **Train/serve mismatch.** The model was trained on complete utterances, but at serving time it scores *partial, streaming* transcripts, and the rule for aggregating utterance scores into a call-level alert was never formalized or evaluated.
 
-**What a correct redesign looks like** — call-disjoint splits, call-level labels with weak supervision instead of inherited utterance labels, an explicit streaming/early-detection evaluation, and hard-negative testing against legitimate call-center dialogue — is exactly the design of **[EarShield](https://github.com/pmy02/earshield)** <!-- TODO: update URL -->.
+**What a correct redesign looks like** — call-disjoint splits, call-level labels with weak supervision instead of inherited utterance labels, an explicit streaming/early-detection evaluation, and hard-negative testing against legitimate call-center dialogue — is exactly the design of **[nOOnchi_v2](https://github.com/pmy02/nOOnchi_v2)**
 
 ---
 
@@ -123,23 +121,7 @@ Re-auditing the code and data after the program ended surfaced four methodologic
 | [streaming_stt_test](https://github.com/SWMTeamCuriosity/streaming_stt_test) / [mic_input_test](https://github.com/SWMTeamCuriosity/mic_input_test) / [Kospeech_test](https://github.com/SWMTeamCuriosity/Kospeech_test) | STT / audio input experiments |
 | [noonchi_api](https://github.com/SWMTeamCuriosity/noonchi_api) | Nest.js API server |
 
-## Reproducibility
-
-The training notebook (`KoBERT_test/KoBERT_Test.ipynb`, Colab-based, SKTBrain KoBERT + gluonnlp/mxnet stack) and the dataset CSVs (`transcript_data/csv_datas/result.csv`, 38,000 rows) are preserved as-is for the historical record. Re-running them reproduces the *flawed* protocol described above — by design they are kept unchanged; the corrected pipeline lives in the successor repository.
-
-## Citation
-
-```bibtex
-@misc{park2022noonchi,
-  author       = {Park, Minyoung},
-  title        = {nOOnchi: Real-Time Voice Phishing Detection Service},
-  year         = {2022},
-  howpublished = {\url{https://github.com/pmy02/nOOnchi}},
-  note         = {SW Maestro 13th program project}
-}
-```
-
 ## License & Contact
 
-MIT License — see [LICENSE](LICENSE).
-Maintained by **Park Minyoung** ([@pmy02](https://github.com/pmy02)). <!-- TODO: add a contact email if you want one public -->
+MIT License — see [LICENSE](LICENSE). <br>
+Maintained by **Park Minyoung** ([@pmy02](https://github.com/pmy02)).minyo0119@naver.com
