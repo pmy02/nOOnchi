@@ -31,13 +31,14 @@
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/d4abd062-f76a-444e-a3bd-52d53d04d7cf)
 
-### STT 엔진 선정
+### STT 선정
 
 보이스피싱 통화 음성에 대해 여러 한국어 STT API의 전사 정확도와 스트리밍 지원 여부를 비교했습니다.
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/99aa342e-8fde-4957-8781-74526f2ac66c)
 
-**VITO STT**는 준수한 정확도를 유지하면서 실시간 스트리밍을 지원한다는 *기술적 근거*로 선정했습니다. (협의를 통한 20% 할인은 서비스 운영상의 비용 요인이었을 뿐, 기술적 선정 기준은 아닙니다.)
+**VITO STT**는 준수한 정확도를 유지하면서 실시간 스트리밍을 지원한다는 **기술적 근거**로 선정했습니다. <br>
+(협의를 통한 20% 할인은 서비스 운영상의 비용 요인도 선정에 영향을 미쳤습니다.)
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
 
@@ -47,22 +48,21 @@
 
 | 출처 | 원천 수집 | 학습 사용 |
 |---|---|---|
-| **피싱** — 금융감독원 [‘그놈 목소리’](https://www.fss.or.kr/fss/bbs/B0000206/list.do?menuNo=200690) / [‘바로 이 목소리’](https://www.fss.or.kr/fss/bbs/B0000203/list.do?menuNo=200686) (실제 사기 통화 공개 음성) | 546개 통화 크롤링 후 VITO STT 전사 | 발화 18,000건 (라벨 `True`) |
-| **정상** — [AI Hub](https://aihub.or.kr/aihubdata/data/view.do?currMenu=116&topMenu=100&aihubDataSe=ty&dataSetSn=123) 한국어 대화 코퍼스 (금융 상담, 콜센터, 일상 대화) | 약 78,000건의 대화 레코드 | 발화 20,000건 (라벨 `False`) |
+| **피싱데이터** — 금융감독원 [‘그놈 목소리’](https://www.fss.or.kr/fss/bbs/B0000206/list.do?menuNo=200690) / [‘바로 이 목소리’](https://www.fss.or.kr/fss/bbs/B0000203/list.do?menuNo=200686) <br> (실제 피싱 통화 기록) | 546건 크롤링 후 VITO STT 적용 | 발화 18,000건 (라벨 `True`) |
+| **정상데이터** — [AI Hub](https://aihub.or.kr/aihubdata/data/view.do?currMenu=116&topMenu=100&aihubDataSe=ty&dataSetSn=123) 한국어 대화 코퍼스 (금융 상담, 콜센터, 일상 대화) | 약 78,000건의 대화 레코드 | 발화 20,000건 (라벨 `False`) |
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/9d4da9b7-8ed4-4150-beef-aaad69b1fbff)
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/caba59e1-75ab-47b1-adff-e99f14092d41)
 
-**38,000건 학습 데이터가 실제로 만들어진 방식** ([`text_refactoring/sentence_to_csv`](https://github.com/SWMTeamCuriosity/text_refactoring), [`transcript_data`](https://github.com/SWMTeamCuriosity/transcript_data) 참고): 피싱 통화 546건을 STT 발화 단위로 분할하고, 2자 초과 발화 중 앞에서부터 18,000건에 `True`를 부여했습니다. 정상 발화도 같은 방식으로 추출해 앞에서부터 20,000건에 `False`를 부여했습니다. 당시 기록에서는 이 단계를 "Augmentation"이라 표현했으나, 정확히는 **통화 단위 데이터를 발화 단위로 분할**한 것이며, 모든 발화는 자신이 속한 통화의 라벨을 그대로 상속합니다.
-
+**38,000건 학습 데이터가 실제로 만들어진 방식** ([`text_refactoring/sentence_to_csv`](https://github.com/SWMTeamCuriosity/text_refactoring), [`transcript_data`](https://github.com/SWMTeamCuriosity/transcript_data) 참고): 피싱 통화 546건을 STT 발화 단위로 분할하고, 2자 초과 발화 중 앞에서부터 18,000건에 `True`를 부여했습니다. 정상 발화도 같은 방식으로 추출해 앞에서부터 20,000건에 `False`를 부여했습니다.
 > AI Hub 원천 데이터는 라이선스상 재배포가 불가하며, 리포지토리에는 프로그램 기간 중 사용한 파생 파일만 포함되어 있습니다.
 
 ---
 
 ## 모델
 
-**[KoBERT](https://github.com/SKTBrain/KoBERT)** (SKTBrain) 위에 표준적인 파인튜닝 구성을 얹었습니다. 입력 발화를 KoBERT의 **SentencePiece 서브워드 토크나이저**로 토큰화하고, 인코딩된 풀링 표현을 드롭아웃 + 선형 레이어에 통과시켜 이진 분류합니다.
+**[KoBERT](https://github.com/SKTBrain/KoBERT)** (SKTBrain) 위에 파인튜닝 구성을 얹었습니다. 입력 발화를 KoBERT의 **SentencePiece 서브워드 토크나이저**로 토큰화하고, 인코딩된 풀링 표현을 드롭아웃 + 선형 레이어에 통과시켜 이진 분류합니다.
 
 | 하이퍼파라미터 | 값 ([`KoBERT_test`](https://github.com/SWMTeamCuriosity/KoBERT_test) 노트북 기준) |
 |---|---|
