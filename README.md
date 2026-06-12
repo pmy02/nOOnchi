@@ -1,6 +1,6 @@
 **English** | [한국어](README.ko.md)
 
-# nOOnchi (눈치) — Real-Time Voice Phishing Detection Service
+# nOOnchi — Real-Time Voice Phishing Detection Service
 
 ![SW Maestro](https://img.shields.io/badge/SW%20Maestro-13th%20(2022)-blue)
 ![Model](https://img.shields.io/badge/Model-KoBERT-orange)
