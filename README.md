@@ -1,64 +1,145 @@
-# nOOnchi
-- 프로젝트 소개 : 보이스피싱 탐지 솔루션
-- 프로젝트 기간 : 2022.04.08 ~ 2022.12.15 
+**English** | [한국어](README.ko.md)
 
+# nOOnchi (눈치) — Real-Time Voice Phishing Detection Service
 
-# 프로젝트 설명
+![SW Maestro](https://img.shields.io/badge/SW%20Maestro-13th%20(2022)-blue)
+![Model](https://img.shields.io/badge/Model-KoBERT-orange)
+![PyTorch](https://img.shields.io/badge/PyTorch-1.x-EE4C2C?logo=pytorch&logoColor=white)
+![Backend](https://img.shields.io/badge/Backend-Nest.js%20%C2%B7%20Kubernetes%20%C2%B7%20AWS%20SQS-green)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
+> **Status: archived (Apr 8 – Dec 15, 2022).** This README was revised in 2026 to document the system *accurately*, including methodological limitations identified in retrospect. The limitations are kept here deliberately — they motivated a methodologically rigorous successor project, **[EarShield](https://github.com/pmy02/earshield)** <!-- TODO: update URL after pushing the successor repo -->, which redesigns the data splits, labels, and evaluation from the ground up.
+
+**nOOnchi** ("nunchi" — the Korean word for reading a situation) is a voice phishing detection solution built during the **13th SW Maestro program**: an API service and mobile application that transcribes an ongoing phone call, classifies the conversation with a KoBERT-based model, and alerts the user when the call looks like voice phishing. The motivation was the steady year-over-year growth of voice phishing damage in Korea and the fact that most victims realize what happened only after the money has moved.
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/d35d8313-555f-4e9e-9efc-f82e809e5a45)
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/7f5917b1-d259-4feb-a4b6-ee4bf9e618b7)
 
-<strong>눈치(nOOnchi)</strong>는 <strong>소프트웨어 마에스트로 13기</strong>에서 진행한 프로젝트로, 통화 내용을 기반으로 보이스피싱 여부를 판별하고, 이를 사용자에게 알려주는 API 서비스이자 Application입니다. <br>
-매년 피해와 규모가 증가하고 있는 보이스피싱을 사전에 예방하여 공공의 이익을 실천하고자 하였습니다. <br><br>
- 
-KoBERT 기반 탐지 모델, Kubernetes와 SQS를 활용한 아키텍처로 구축한 데이터 파이프라인, Nest.js를 사용한 API 서버가 있습니다. <br>
-[개발 링크](https://github.com/SWMTeamCuriosity)
+The system consists of three parts: a KoBERT-based detection model, a streaming data pipeline built on Kubernetes and Amazon SQS, and a Nest.js API server. All research and prototype repositories live in the team organization: **[SWMTeamCuriosity](https://github.com/SWMTeamCuriosity)**.
 
+---
 
-# 개발 내용 - 모델
+## System Architecture
 
-금융감독원의 [‘그놈 목소리’](https://www.fss.or.kr/fss/bbs/B0000206/list.do?menuNo=200690)와 [‘바로 이 목소리’](https://www.fss.or.kr/fss/bbs/B0000203/list.do?menuNo=200686) 서비스에서 제공하는 546개의 보이스피싱 데이터를 크롤링하여 수집하였습니다. <br><br>
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/9d4da9b7-8ed4-4150-beef-aaad69b1fbff) <br>
+A phone call is streamed to the backend, transcribed in real time by a streaming STT engine, and the transcript segments are pushed through an asynchronous pipeline to the model server for classification. Results are returned to the client app, which raises an alert when the phishing score crosses a threshold.
 
-[AI Hub](https://aihub.or.kr/aihubdata/data/view.do?currMenu=116&topMenu=100&aihubDataSe=ty&dataSetSn=123)에서 일반 대화 데이터를 수집하였습니다. 금융 상담을 비롯한 일상 대화 내용 78,000건을 수집하였습니다. <br><br>
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/caba59e1-75ab-47b1-adff-e99f14092d41) <br>
-
-보이스피싱 데이터를 텍스트로 변환하기 위해 여러 종류의 STT API를 비교 분석한 결과, 가장 적합한 STT API를 선정하였습니다. <br> 
-
-아래는 STT API들의 비교 결과를 나타낸 표입니다. <br>
-
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/99aa342e-8fde-4957-8781-74526f2ac66c)
-
-위 표를 통해 VITO STT 서비스가 준수한 정확도를 유지하면서도 실시간 스트리밍이 가능함을 확인할 수 있었습니다. <br>
-또한, VITO 측과 협의를 통해 해당 서비스를 20% 저렴한 가격으로 이용할 수 있게 되어, 최종적으로 VITO STT를 선택하게 되었습니다. <br>
-
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
-
-모델 선정을 위해 다양한 모델을 테스트하였으며, 그 결과 BERT 기반의 KoBERT 모델이 가장 우수한 성능을 보였습니다. 또한, 보이스피싱 데이터가 부족한 문제를 Augmentation 기법을 활용하여 해결하였습니다. 
-이를 바탕으로, 각 단어를 토큰화한 후 KoBERT와 Binary Classification 모델을 연결하여 보이스피싱 여부를 판별할 수 있는 모델을 설계하였습니다.
-
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/df63ff97-ad6d-47ea-9001-c321c034a988)
-
-모델 학습은 총 6 Epoch로 진행되었고, Confusion matrix에서 나온 값들을 통해 모델 성능 지표를 확인해 보았습니다. <br>
-이에 따르면, 모델의 정확도는 94.8%, 정밀도는 81.3%, 재현율은 96.2%, f1 score는 88.1%로 측정되었습니다.
-
-이 결과는 보이스피싱 여부를 판별하는 데 있어 중요한 재현율이 높아, 신뢰할 수 있는 모델임을 나타냅니다.
-
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/ef0394b9-4728-46cd-bbd4-0fcff9052583)
-
-
-# 탐지 화면
-
-![image](https://github.com/pmy02/nOOnchi/assets/62882579/331c45e7-7dd2-4c9b-9430-1fdbad4998ec)
-
-
-# 개발 내용 - 서버
-
-Kubernetes를 기반의 컨테이너 아키텍처 설계 <br>
-Amazon SQS를 이용한 비동기식 데이터 처리
+- **Container orchestration:** Kubernetes-based container architecture
+- **Asynchronous processing:** Amazon SQS decouples STT output from model inference
+- **API server:** Nest.js with an MVC layering
 
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/0dcd6f34-139b-4eed-a452-bead5ba00d7e)
 
-Nest.js 를 이용한 MVC 패턴 구현
-
 ![image](https://github.com/pmy02/nOOnchi/assets/62882579/d4abd062-f76a-444e-a3bd-52d53d04d7cf)
+
+### STT engine selection
+
+Several Korean STT APIs were benchmarked on phishing-call audio for transcription accuracy and streaming capability:
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/99aa342e-8fde-4957-8781-74526f2ac66c)
+
+**VITO STT** was selected on technical grounds — competitive accuracy while supporting real-time streaming, which the detection scenario requires. (A negotiated 20% discount was an additional cost consideration for the service, not a technical criterion.)
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/398fe901-96e9-4d90-a77e-f2bff884c3bf)
+
+---
+
+## Data
+
+| Source | Raw collection | Used for training |
+|---|---|---|
+| **Phishing** — FSS ["그놈 목소리"](https://www.fss.or.kr/fss/bbs/B0000206/list.do?menuNo=200690) / ["바로 이 목소리"](https://www.fss.or.kr/fss/bbs/B0000203/list.do?menuNo=200686) (real scam-call recordings released by the Financial Supervisory Service) | 546 calls, crawled and transcribed with VITO STT | 18,000 utterances (label `True`) |
+| **Normal** — [AI Hub](https://aihub.or.kr/aihubdata/data/view.do?currMenu=116&topMenu=100&aihubDataSe=ty&dataSetSn=123) Korean dialogue corpora (financial counseling, call-center, daily conversation) | ~78,000 dialogue records | 20,000 utterances (label `False`) |
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/9d4da9b7-8ed4-4150-beef-aaad69b1fbff)
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/caba59e1-75ab-47b1-adff-e99f14092d41)
+
+**How the 38,000-utterance training set was actually built** (see [`text_refactoring/sentence_to_csv`](https://github.com/SWMTeamCuriosity/text_refactoring) and [`transcript_data`](https://github.com/SWMTeamCuriosity/transcript_data)): the 546 phishing calls were segmented into STT utterances; utterances longer than 2 characters were kept and the first 18,000 were labeled `True`. Normal utterances were extracted from the AI Hub dialogues the same way and the first 20,000 were labeled `False`. The original write-up described this step as "augmentation"; **utterance-level segmentation of call-level data** is the precise description — every utterance inherits the label of its source call.
+
+> The raw AI Hub corpora are license-restricted and cannot be redistributed; the repositories contain only derived files used during the program.
+
+---
+
+## Model
+
+A standard fine-tuning setup on top of **[KoBERT](https://github.com/SKTBrain/KoBERT)** (SKTBrain): the input utterance is tokenized with KoBERT's **SentencePiece subword tokenizer**, encoded, and the pooled representation is passed through a dropout + linear layer for binary classification.
+
+| Hyperparameter | Value (from [`KoBERT_test`](https://github.com/SWMTeamCuriosity/KoBERT_test) notebook) |
+|---|---|
+| Max sequence length | 64 |
+| Batch size | 64 |
+| Optimizer / LR | AdamW / 1e-6 (linear warmup 10%) |
+| Dropout | 0.5 |
+| Loss | CrossEntropyLoss (2-way) |
+| Epochs | 50 in the notebook configuration <!-- TODO: the deployed checkpoint was reported as 6 epochs; confirm which checkpoint shipped --> |
+| Split | `train_test_split(test_size=0.2, random_state=0)` at the **utterance level** |
+
+Alternative models were prototyped during model selection — [BiLSTM/RNN classifiers](https://github.com/SWMTeamCuriosity/BiLSTM_RNN_Text_Classification) and [pretrained fastText](https://github.com/SWMTeamCuriosity/pretrained_fastText) — and KoBERT performed best among them on the team's validation data.
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/df63ff97-ad6d-47ea-9001-c321c034a988)
+
+---
+
+## Reported Results
+
+Metrics computed from a confusion matrix on held-out utterances:
+
+| Accuracy | Precision | Recall | F1 |
+|:---:|:---:|:---:|:---:|
+| 94.8% | 81.3% | 96.2% | 88.1% |
+
+High recall was prioritized: for a phishing alert system, a missed phishing call (false negative) is far more costly than a false alarm.
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/ef0394b9-4728-46cd-bbd4-0fcff9052583)
+
+### ⚠️ Limitations & retrospective (read this before citing the numbers)
+
+Re-auditing the code and data after the program ended surfaced four methodological problems. They are documented here honestly because they shaped the successor project.
+
+1. **Same-call leakage inflates the metrics.** The train/test split was a *random utterance-level* split, so utterances from the *same phishing call* — often near-duplicates of each other — appear on both sides. The reported numbers therefore measure recognition of seen calls more than generalization to new ones. A grouped, **call-disjoint** split is the correct protocol.
+2. **Label inheritance noise.** Every utterance inherits its call's label, so contentless fragments from phishing calls (e.g., "아파서", "다름이 아니라") are labeled `True`. The model is partly trained to call neutral filler "phishing", which hurts precision on real traffic.
+3. **The evaluation protocol is under-documented and the reported metrics are not internally consistent with the documented split.** Accuracy 94.8 / precision 81.3 / recall 96.2 jointly imply a test set with roughly a **4 : 1 negative-to-positive ratio**, while the documented 80/20 split of the 20,000 / 18,000 corpus yields ≈ 1.1 : 1. The exact evaluation set behind the published numbers can no longer be reconstructed from the repositories, so the figures should be treated as indicative, not reproducible.
+4. **Train/serve mismatch.** The model was trained on complete utterances, but at serving time it scores *partial, streaming* transcripts, and the rule for aggregating utterance scores into a call-level alert was never formalized or evaluated.
+
+**What a correct redesign looks like** — call-disjoint splits, call-level labels with weak supervision instead of inherited utterance labels, an explicit streaming/early-detection evaluation, and hard-negative testing against legitimate call-center dialogue — is exactly the design of **[EarShield](https://github.com/pmy02/earshield)** <!-- TODO: update URL -->.
+
+---
+
+## Detection UI
+
+![image](https://github.com/pmy02/nOOnchi/assets/62882579/331c45e7-7dd2-4c9b-9430-1fdbad4998ec)
+
+---
+
+## Related Repositories
+
+| Repository | Role |
+|---|---|
+| [KoBERT_test](https://github.com/SWMTeamCuriosity/KoBERT_test) | KoBERT fine-tuning notebook (final model) |
+| [BiLSTM_RNN_Text_Classification](https://github.com/SWMTeamCuriosity/BiLSTM_RNN_Text_Classification) | BiLSTM/RNN baselines |
+| [pretrained_fastText](https://github.com/SWMTeamCuriosity/pretrained_fastText) | fastText baseline |
+| [transcript_data](https://github.com/SWMTeamCuriosity/transcript_data) | Transcripts and CSV training data |
+| [text_refactoring](https://github.com/SWMTeamCuriosity/text_refactoring) / [text_preprocessing](https://github.com/SWMTeamCuriosity/text_preprocessing) / [normal_data_preprocess](https://github.com/SWMTeamCuriosity/normal_data_preprocess) / [MeCab_and_Stopword](https://github.com/SWMTeamCuriosity/MeCab_and_Stopword) | Data construction & preprocessing pipelines |
+| [streaming_stt_test](https://github.com/SWMTeamCuriosity/streaming_stt_test) / [mic_input_test](https://github.com/SWMTeamCuriosity/mic_input_test) / [Kospeech_test](https://github.com/SWMTeamCuriosity/Kospeech_test) | STT / audio input experiments |
+| [noonchi_api](https://github.com/SWMTeamCuriosity/noonchi_api) | Nest.js API server |
+
+## Reproducibility
+
+The training notebook (`KoBERT_test/KoBERT_Test.ipynb`, Colab-based, SKTBrain KoBERT + gluonnlp/mxnet stack) and the dataset CSVs (`transcript_data/csv_datas/result.csv`, 38,000 rows) are preserved as-is for the historical record. Re-running them reproduces the *flawed* protocol described above — by design they are kept unchanged; the corrected pipeline lives in the successor repository.
+
+## Citation
+
+```bibtex
+@misc{park2022noonchi,
+  author       = {Park, Minyoung},
+  title        = {nOOnchi: Real-Time Voice Phishing Detection Service},
+  year         = {2022},
+  howpublished = {\url{https://github.com/pmy02/nOOnchi}},
+  note         = {SW Maestro 13th program project}
+}
+```
+
+## License & Contact
+
+MIT License — see [LICENSE](LICENSE).
+Maintained by **Park Minyoung** ([@pmy02](https://github.com/pmy02)). <!-- TODO: add a contact email if you want one public -->
