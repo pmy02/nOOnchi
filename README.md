@@ -8,7 +8,7 @@
 ![Backend](https://img.shields.io/badge/Backend-Nest.js%20%C2%B7%20Kubernetes%20%C2%B7%20AWS%20SQS-green)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-> **Status: archived (Apr 8 – Dec 15, 2022).** This README was revised in 2026 to document the system *accurately*, including methodological limitations identified in retrospect. The limitations are kept here deliberately — they motivated a methodologically rigorous successor project, **[nOOnchi_v2](https://github.com/pmy02/nOOnchi_v2)**, which redesigns the data splits, labels, and evaluation from the ground up.
+> **Status: archived (Apr 8 – Dec 15, 2022).** This README was revised in 2026 to document the system *accurately*, including methodological limitations identified in retrospect. The limitations are kept here deliberately — they motivated a methodologically rigorous successor project, **[Earshield](https://github.com/pmy02/Earshield)**, which redesigns the data splits, labels, and evaluation from the ground up.
 
 **nOOnchi** is a voice phishing detection solution built during the **13th SW Maestro program**: an API service and mobile application that transcribes an ongoing phone call, classifies the conversation with a KoBERT-based model, and alerts the user when the call looks like voice phishing. The motivation was the steady year-over-year growth of voice phishing damage in Korea and the fact that most victims realize what happened only after the money has moved.
 
